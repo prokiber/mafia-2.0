@@ -48,7 +48,7 @@ def start(m):
        try:
         if m.from_user.id==m.chat.id:
          if m.from_user.id not in games[int(x[1])]['players']:
-          if len(games[int(x[1])]['players'])<10:
+          if len(games[int(x[1])]['players'])<35:
            if int(x[1])<0:
             i=0              
             if games[int(x[1])]['play']==0:
@@ -191,7 +191,7 @@ def startgame(m):
 def begin(id):
   if id in games:
    if games[id]['play']==0:
-    if len(games[id]['players'])>=5:
+    if len(games[id]['players'])>=2:
         for ids in games[id]['todel']:
             try:
                 bot.delete_message(id, ids)
@@ -216,16 +216,142 @@ def begin(id):
         except:
             pass
 
-          
+
           
 def xod(id):
-  rolelist=['gunner', 'volk']
+  zlo7p=['volk','alpha']
+  zlo15p=['volk','alpha','sekta','lycan']
+  zlo35p=['volk','alpha','sekta','lycan']
+  rolelist7p=['gunner','volk','selo','alpha','rock','chlp','seer','fool','lycan']
+  rolelist15p=['gunner','volk','selo','alpha','rock','chlp','seer','fool','sekta','dikii','suicide']
+  rolelist35p=['gunner','volk','selo','alpha','kamen']
+  allroles=[]
+  onerole=['gunner','alpha','chlp','seer','fool','dikii','suicide']
+  i=0
+  x=len(games[id]['players'])
+  if x<=7:
+    mode=1
+    rolelist=rolelist7p
+    zlo=zlo7p
+  if x<=15:
+    rolelist=rolelist15p
+    zlo=zlo15p
+    mode=2
+  if x<=35:
+    rolelist=rolelist35p
+    zlo=zlo35p
+    mode=3
+  while i<x:
+        i+=1
+        if i==x:
+            z=0
+            for idss in allroles:
+                if idss in zlo:
+                    z=1
+            if z==0:
+                allroles.append(random.choice(zlo))
+            else:
+                allroles.append(rolechoice(onerole,allroles,mode))
+        else:
+            allroles.append(rolechoice(onerole,allroles,mode))
   for ids in games[id]['players']:
-        pass
+    if len(allroles)>0:
+        role=random.choice(allroles)
+        games[id]['players']['role']=role
+        allroles.remove(role)
+  night(id)
+     
+
+   
           
           
-          
-          
+rolechoice(onerole,allroles,mode):
+        returnn=0
+        while returnn==0:
+                role=random.choice(rolelist)
+                if role in onerole and role in allroles:
+                    returnn=0
+                else:
+                    rocks=0
+                    selo=0
+                    if role=='rock':
+                        for rl in allroles:
+                            if rl=='rock':
+                                rocks+=1
+                        if mode==1:
+                            if rocks<1:
+                                returnn=1
+                        elif mode==2:
+                            if rocks<2:
+                                returnn=1
+                        elif mode==3:
+                            if rocks<4:
+                                returnn=1
+                    elif role=='selo':
+                        for rl in allroles:
+                            if rl=='selo':
+                                selo+=1
+                        if mode==1:
+                            if selo<2:
+                                returnn=1
+                        elif mode==2:
+                            if selo<3:
+                                returnn=1
+                        elif mode==3:
+                            if selo<6:
+                                returnn=1
+        return role
+
+
+  
+def night(id):
+    games[id]['xod']+=1
+    if games[id]['xod']==1:
+        for ids in games[id]['players']:
+            bot.send_message(games[id]['players'][ids]['id'],roletotext(games[id]['players'][ids]['role']))
+    for ids in games[id]['players']:
+        roletoaction(id,games[id]['players'][ids])
+
+        
+def roletoaction(id,player):  
+    kb=types.InlineKeyboardMarkup()
+    if player['role']=='volk':
+      for ids in games[id]['players']:
+       if games[id]['players'][ids]['id']!=player['id']:
+        kb.add(types.InlineKeyboardButton(text=games[id]['players'][ids]['name'], callback_data=games[id]['players'][ids]['number'])
+        
+        
+        
+        
+
+#['gunner','volk','selo','alpha','rock','chlp','seer','fool','sekta','dikii','suicide']
+def roletotext(role):
+    x='У роли нет описания, обратитесь к @Loshadkin'
+    if role=='chlp':
+        x='Вы - Ксен'
+    if role=='gunner':
+        x='Вы стрелок'
+    if role=='volk':
+        x='Вы волк'
+    if role=='selo':
+        x='Вы село'
+    if role=='alpha':
+        x='Вы альфа-волк'
+    if role=='rock':
+        x='Вы камень'
+    if role=='seer':
+        x='Вы провидец'
+    if role=='fool':
+        x='Вы провидец'
+    if role=='sekta':
+        x='Вы секта'
+    if role=='dikii':
+        x='Вы дикий ребенок'
+    if role=='suicide':
+        x='Вы самоубийца'
+    return x
+            
+            
         
 @bot.message_handler(commands=['forcestart'])
 def forcem(m):
@@ -255,6 +381,7 @@ def creategame(id):
         'todel':[],
         'toedit':[],
         'play':0,
+        'xod':0,
         'timebeforestart':300,
         'users':None,
         'userlist':'Игроки:\n\n'
@@ -262,10 +389,12 @@ def creategame(id):
            }
 
 
-def createuser(id):
+def createuser(id,name):
     return{'id':id,
            'role':None,
-           'die':0
+           'die':0,
+           'name':name,
+           'number':None
           }
   
   
