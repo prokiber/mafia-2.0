@@ -318,22 +318,22 @@ def roletoaction(id,player):
     if player['role']=='volk' or player['role']=='alpha':
       for ids in games[id]['players']:
        if games[id]['players'][ids]['id']!=player['id']:
-        kb.add(types.InlineKeyboardButton(text=games[id]['players'][ids]['name'], callback_data='eat'+games[id]['players'][ids]['number']))
+        kb.add(types.InlineKeyboardButton(text=games[id]['players'][ids]['name'], callback_data=games[id]['players'][ids]['number']))
       bot.send_message(player['id'],'Кого вы хотите скушать?',reply_markup=kb)
     if player['role']=='chlp':
       for ids in games[id]['players']:
        if games[id]['players'][ids]['id']!=player['id']:
-        kb.add(types.InlineKeyboardButton(text=games[id]['players'][ids]['name'], callback_data='go'+games[id]['players'][ids]['number']))
+        kb.add(types.InlineKeyboardButton(text=games[id]['players'][ids]['name'], callback_data=games[id]['players'][ids]['number']))
       bot.send_message(player['id'],'Кого вы хотите посетить?',reply_markup=kb)
     if player['role']=='seer' or player['role']=='fool':
       for ids in games[id]['players']:
        if games[id]['players'][ids]['id']!=player['id']:
-        kb.add(types.InlineKeyboardButton(text=games[id]['players'][ids]['name'], callback_data='see'+games[id]['players'][ids]['number']))
+        kb.add(types.InlineKeyboardButton(text=games[id]['players'][ids]['name'], callback_data=games[id]['players'][ids]['number']))
       bot.send_message(player['id'],'Кого вы хотите увидеть?',reply_markup=kb)
     if player['role']=='dikii':
       for ids in games[id]['players']:
        if games[id]['players'][ids]['id']!=player['id']:
-        kb.add(types.InlineKeyboardButton(text=games[id]['players'][ids]['name'], callback_data='choose'+games[id]['players'][ids]['number']))
+        kb.add(types.InlineKeyboardButton(text=games[id]['players'][ids]['name'], callback_data=games[id]['players'][ids]['number']))
       bot.send_message(player['id'],'Кого вы хотите выбрать примером?',reply_markup=kb)
         
         
@@ -370,14 +370,22 @@ def roletotext(role):
       
 @bot.callback_query_handler(func=lambda call:True)
 def inline(call):
-    if 'eat' in call.data:
-        pass
-    if 'go' in call.data:
-        pass
-    if 'see' in call.data:
-        pass
-    if 'choose' in call.data:
-        pass
+    user=None
+    for ids in games:
+      for idss in games[ids]['players']:
+        if games[ids]['players'][idss]['id']==call.from_user.id:
+            user=games[ids]['players'][idss]
+            yes=0
+            for n in games[ids]['players']:
+                if games[ids]['players'][n]['number']==int(call.data):
+                    yes=1
+                    name=games[ids]['players'][n]['name']
+            if yes==0:
+                user=None
+    if user!=None:
+        user['target']=int(call.data)
+        medit('Выбор принят - '+name, call.from_user.id, call.message.message_id)
+
         
         
         
@@ -422,7 +430,8 @@ def createuser(id,name):
            'role':None,
            'die':0,
            'name':name,
-           'number':None
+           'number':None,
+           'target':None
           }
   
   
