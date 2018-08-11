@@ -315,6 +315,8 @@ def night(id):
         roletoaction(id,games[id]['players'][ids])
 
 def day(id):
+    t=threading.Timer(100,lynch,args=[id])
+    t.start()
     for ids in games[id]['players']:
       if games[id]['players'][ids]['checked']==0:
         player=games[id]['players'][ids]
@@ -346,7 +348,11 @@ def day(id):
                     bot.send_message(player['id'],'Ты видишь, что '+games[id]['players'][idss]['name']+' - это '+games[id]['players'][idss]['role']+'!')
         
         
-        
+def lynch(id):
+    for ids in games[id]['players']:
+        pass
+    
+    
         
 def roletoaction(id,player):  
     kb=types.InlineKeyboardMarkup()
