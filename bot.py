@@ -305,6 +305,8 @@ rolechoice(onerole,allroles,mode):
 
   
 def night(id):
+    t=threading.Timer(100,day,args=[id])
+    t.start()
     games[id]['xod']+=1
     if games[id]['xod']==1:
         for ids in games[id]['players']:
@@ -312,6 +314,39 @@ def night(id):
     for ids in games[id]['players']:
         roletoaction(id,games[id]['players'][ids])
 
+def day(id):
+    for ids in games[id]['players']:
+      if games[id]['players'][ids]['checked']==0:
+        player=games[id]['players'][ids]
+        if player['role']=='wolf' or player['role']=='alpha' or player['role']=='lycan':
+            targets=[]
+            if games[id]['players'][ids]['target']!=None:
+                targets.append(games[id]['players'][ids]['target'])
+            games[id]['players'][ids]['checked']=1
+            for idss in games[id]['players']:
+                if games[id]['players'][idss]['role']=='alpha' or games[id]['players'][idss]['role']=='wolf' or games[id]['players'][idss]['role']=='lycan':
+                  games[id]['players'][idss]['checked']=1
+                  if games[id]['players'][idss]['target']!=None:
+                    targets.append(games[id]['players'][idss]['target'])
+            x=random.choice(targets)
+            for trgt in games[id]['players']:
+                if games[id]['players'][trgt]['number']==x:
+                    games[id]['players'][trgt]['eaten']=1
+                    
+        if player['role']=='chlp':
+            if player['target']!=None:
+                for idss in games[id]['players']:
+                    if games[id]['players'][idss]['number']==player['target']:
+                        games[id]['players'][idss]['nothome']=1
+                        player['chlp']=1
+        if player['role']=='seer':
+          if player['target']!=None:
+            for idss in games[id]['players']:
+                if games[id]['players'][idss]['number']==player['target']:
+                    bot.send_message(player['id'],'Ты видишь, что '+games[id]['players'][idss]['name']+' - это '+games[id]['players'][idss]['role']+'!')
+        
+        
+        
         
 def roletoaction(id,player):  
     kb=types.InlineKeyboardMarkup()
@@ -428,10 +463,16 @@ def creategame(id):
 def createuser(id,name):
     return{'id':id,
            'role':None,
+           'checked':0,
            'die':0,
            'name':name,
            'number':None,
-           'target':None
+           'target':None,
+           'eaten':0,
+           'killed':0,
+           'def':0,
+           'chlp':0,
+           'nothome':0
           }
   
   
