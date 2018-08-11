@@ -349,8 +349,12 @@ def day(id):
         
         
 def lynch(id):
+    kb=types.InlineKeyboardMarkup()
     for ids in games[id]['players']:
-        pass
+      player=games[id]['players'][ids]
+      for idss in games[id]['players']:
+        if games[id]['players'][idss]['id']!=player['id']:
+            kb.add(types.InlineKeyboardButton(text=games[id]['players'][idss]['name'], callback_data='lynch'+games[id]['players'][idss]['number'])
     
     
         
@@ -407,10 +411,11 @@ def roletotext(role):
     if role=='suicide':
         x='Вы самоубийца'
     return x
-            
+                   
       
 @bot.callback_query_handler(func=lambda call:True)
 def inline(call):
+  if 'lynch' not in call.data:
     user=None
     for ids in games:
       for idss in games[ids]['players']:
@@ -426,6 +431,9 @@ def inline(call):
     if user!=None:
         user['target']=int(call.data)
         medit('Выбор принят - '+name, call.from_user.id, call.message.message_id)
+  else:
+      pass             
+     
 
         
         
