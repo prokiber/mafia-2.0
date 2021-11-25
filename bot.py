@@ -17,7 +17,7 @@ from requests.exceptions import ConnectionError
 
 
 token = os.environ['TELEGRAM_TOKEN']
-bot = telebot.TeleBot(token)
+bot = telebot.TeleBot('2135447201:AAFpS4Lmje3ABYILz0d64ygshbITNlq3OeY')
 vip=[441399484, 55888804]
 games={}
 skills=[]
